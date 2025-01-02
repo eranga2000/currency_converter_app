@@ -1,11 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'api_service.dart';
 
-void main() {
-  runApp(CurrencyConverterApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    if (kDebugMode) {
+      print(e);
+    }
+  }
+  await dotenv.load(fileName: ".env");
+  runApp(const CurrencyConverterApp());
 }
 
 class CurrencyConverterApp extends StatelessWidget {
+  const CurrencyConverterApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -13,12 +26,14 @@ class CurrencyConverterApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: CurrencyConverterScreen(),
+      home: const CurrencyConverterScreen(),
     );
   }
 }
 
 class CurrencyConverterScreen extends StatefulWidget {
+  const CurrencyConverterScreen({super.key});
+
   @override
   _CurrencyConverterScreenState createState() =>
       _CurrencyConverterScreenState();
@@ -49,7 +64,9 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
         isLoading = false;
       });
     } catch (e) {
-      print('Error fetching exchange rates: $e');
+      if (kDebugMode) {
+        print('Error fetching exchange rates: $e');
+      }
       setState(() {
         isLoading = false;
       });
@@ -68,17 +85,17 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Currency Converter'),
+        title: const Text('Currency Converter'),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Enter Amount',
                       border: OutlineInputBorder(),
                     ),
@@ -89,7 +106,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                       });
                     },
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: fromCurrency.isNotEmpty ? fromCurrency : null,
                     onChanged: (value) {
@@ -104,12 +121,12 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                         child: Text(currency),
                       );
                     }).toList(),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'From Currency',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: toCurrency.isNotEmpty ? toCurrency : null,
                     onChanged: (value) {
@@ -123,20 +140,21 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                         child: Text(currency),
                       );
                     }).toList(),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'To Currency',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _convertCurrency,
-                    child: Text('Convert'),
+                    child: const Text('Convert'),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'Converted Value: $convertedAmount',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
