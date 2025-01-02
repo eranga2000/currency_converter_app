@@ -1,10 +1,10 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String apiKey =
-      'YOUR_API_KEY'; // Replace with your ExchangeRate-API key
-  final String baseUrl = 'https://v6.exchangerate-api.com/v6';
+  final String apiKey = dotenv.env['APIKEY']!;
+  final String baseUrl = dotenv.env['BASEURL']!;
 
   Future<Map<String, dynamic>> fetchExchangeRates(String baseCurrency) async {
     final response =
