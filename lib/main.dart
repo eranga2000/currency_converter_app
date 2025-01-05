@@ -12,7 +12,6 @@ void main() async {
       print(e);
     }
   }
-  await dotenv.load(fileName: ".env");
   runApp(const CurrencyConverterApp());
 }
 
@@ -49,6 +48,9 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
   List<String> currencyList = [];
   bool isLoading = true;
 
+  // TextEditingController to manage the TextField value
+  final TextEditingController amountController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +83,47 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
     }
   }
 
+  void _swapCurrencies() {
+    setState(() {
+      final temp = fromCurrency;
+      fromCurrency = toCurrency;
+      toCurrency = temp;
+
+      if (exchangeRates != null && exchangeRates![toCurrency] != null) {
+        // Update the amount based on the current exchange rate
+        amount = amount * (exchangeRates![toCurrency] ?? 1.0);
+        amountController.text =
+            amount.toStringAsFixed(2); // Update the TextField
+      }
+
+      _fetchExchangeRates(); // Fetch new exchange rates
+      _convertCurrency(); // Perform the conversion again
+    });
+  }
+
+  void _showCurrencySelector(bool isFromCurrency) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return CurrencySelectionSheet(
+          currencies: currencyList,
+          onCurrencySelected: (String selectedCurrency) {
+            setState(() {
+              if (isFromCurrency) {
+                fromCurrency = selectedCurrency;
+                _fetchExchangeRates();
+              } else {
+                toCurrency = selectedCurrency;
+              }
+            });
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,6 +138,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextField(
+                    controller: amountController, // Bind the controller
                     decoration: const InputDecoration(
                       labelText: 'Enter Amount',
                       border: OutlineInputBorder(),
@@ -107,43 +151,47 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: fromCurrency.isNotEmpty ? fromCurrency : null,
-                    onChanged: (value) {
-                      setState(() {
-                        fromCurrency = value!;
-                        _fetchExchangeRates(); // Update rates when base currency changes
-                      });
-                    },
-                    items: currencyList.map((currency) {
-                      return DropdownMenuItem(
-                        value: currency,
-                        child: Text(currency),
-                      );
-                    }).toList(),
-                    decoration: const InputDecoration(
-                      labelText: 'From Currency',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: toCurrency.isNotEmpty ? toCurrency : null,
-                    onChanged: (value) {
-                      setState(() {
-                        toCurrency = value!;
-                      });
-                    },
-                    items: currencyList.map((currency) {
-                      return DropdownMenuItem(
-                        value: currency,
-                        child: Text(currency),
-                      );
-                    }).toList(),
-                    decoration: const InputDecoration(
-                      labelText: 'To Currency',
-                      border: OutlineInputBorder(),
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _showCurrencySelector(true),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16, horizontal: 12),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              fromCurrency,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.swap_horiz, size: 32),
+                        onPressed: _swapCurrencies,
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _showCurrencySelector(false),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16, horizontal: 12),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              toCurrency,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
@@ -159,6 +207,78 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                 ],
               ),
             ),
+    );
+  }
+}
+
+class CurrencySelectionSheet extends StatefulWidget {
+  final List<String> currencies;
+  final ValueChanged<String> onCurrencySelected;
+
+  const CurrencySelectionSheet({
+    Key? key,
+    required this.currencies,
+    required this.onCurrencySelected,
+  }) : super(key: key);
+
+  @override
+  _CurrencySelectionSheetState createState() => _CurrencySelectionSheetState();
+}
+
+class _CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
+  late List<String> filteredCurrencies;
+
+  @override
+  void initState() {
+    super.initState();
+    filteredCurrencies = widget.currencies;
+  }
+
+  void _filterCurrencies(String query) {
+    setState(() {
+      filteredCurrencies = widget.currencies
+          .where((currency) =>
+              currency.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      maxChildSize: 0.9,
+      minChildSize: 0.4,
+      builder: (context, scrollController) {
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                decoration: const InputDecoration(
+                  labelText: 'Search Currency',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: _filterCurrencies,
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                controller: scrollController,
+                itemCount: filteredCurrencies.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(filteredCurrencies[index]),
+                    onTap: () {
+                      widget.onCurrencySelected(filteredCurrencies[index]);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
