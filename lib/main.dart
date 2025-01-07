@@ -104,6 +104,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
   void _showCurrencySelector(bool isFromCurrency) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent, // Makes the background transparent
       isScrollControlled: true,
       builder: (BuildContext context) {
         return CurrencySelectionSheet(
@@ -250,33 +251,36 @@ class _CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
       maxChildSize: 0.9,
       minChildSize: 0.4,
       builder: (context, scrollController) {
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Search Currency',
-                  border: OutlineInputBorder(),
+        return Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Search Currency',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: _filterCurrencies,
                 ),
-                onChanged: _filterCurrencies,
               ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                controller: scrollController,
-                itemCount: filteredCurrencies.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(filteredCurrencies[index]),
-                    onTap: () {
-                      widget.onCurrencySelected(filteredCurrencies[index]);
-                    },
-                  );
-                },
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: filteredCurrencies.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(filteredCurrencies[index]),
+                      onTap: () {
+                        widget.onCurrencySelected(filteredCurrencies[index]);
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
