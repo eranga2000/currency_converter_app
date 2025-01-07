@@ -44,6 +44,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
   String fromCurrency = 'USD';
   String toCurrency = 'EUR';
   double amount = 0.0;
+  double amount2 = 0.0;
   double convertedAmount = 0.0;
   List<String> currencyList = [];
   bool isLoading = true;
@@ -78,6 +79,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
   void _convertCurrency() {
     if (exchangeRates != null) {
       setState(() {
+        amount2 = amount;
         convertedAmount = amount * (exchangeRates![toCurrency] ?? 1.0);
       });
     }
@@ -164,9 +166,17 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              fromCurrency,
-                              style: const TextStyle(fontSize: 16),
+                            child: Row(
+                              children: [
+                                const Text(
+                                  "From  ",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  fromCurrency,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -185,9 +195,17 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              toCurrency,
-                              style: const TextStyle(fontSize: 16),
+                            child: Row(
+                              children: [
+                                const Text(
+                                  "TO  ",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  toCurrency,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -201,7 +219,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Converted Value: $convertedAmount',
+                    '$fromCurrency $amount2: $convertedAmount $toCurrency',
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
@@ -217,10 +235,10 @@ class CurrencySelectionSheet extends StatefulWidget {
   final ValueChanged<String> onCurrencySelected;
 
   const CurrencySelectionSheet({
-    Key? key,
+    super.key,
     required this.currencies,
     required this.onCurrencySelected,
-  }) : super(key: key);
+  });
 
   @override
   _CurrencySelectionSheetState createState() => _CurrencySelectionSheetState();
