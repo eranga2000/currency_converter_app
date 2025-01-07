@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:currency_converter_app/countries.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -41,8 +43,8 @@ class CurrencyConverterScreen extends StatefulWidget {
 class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
   final ApiService apiService = ApiService();
   Map<String, dynamic>? exchangeRates;
-  String fromCurrency = 'USD';
-  String toCurrency = 'EUR';
+  String fromCurrency = 'AED';
+  String toCurrency = 'AED';
   double amount = 0.0;
   double amount2 = 0.0;
   double convertedAmount = 0.0;
@@ -264,6 +266,7 @@ class _CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final encodedUrl = Uri.encodeFull('https://flagsapi.com/AE/flat/64.png');
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
       maxChildSize: 0.9,
@@ -289,11 +292,62 @@ class _CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
                   itemCount: filteredCurrencies.length,
                   itemBuilder: (context, index) {
                     return ListTile(
-                      title: Text(filteredCurrencies[index]),
+                      title: Flexible(
+                        child: Row(
+                          children: [
+                            // Small image of the flag
+                            Container(
+                              child: CachedNetworkImage(
+                                width: 10,
+                                height: 10,
+                                fit: BoxFit.cover,
+                                imageUrl:
+                                    'https://cdn.bikedekho.com/processedimages/yamaha/mt-15-2-0/source/mt-15-2-06613f885e681c.jpg',
+                                placeholder: (context, url) =>
+                                    const CircularProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            Expanded(
+                              child: Text(
+                                countryData[index][
+                                    1], // Example: Country Name (Currency Code)
+                                overflow:
+                                    TextOverflow.ellipsis, // Prevent overflow
+                                style: TextStyle(
+                                    fontSize:
+                                        16), // Optional: Adjust font size/style
+                              ),
+                            ),
+                            // Text for country name and currency
+                            Expanded(
+                              child: Text(
+                                filteredCurrencies[
+                                    index], // Example: Country Name (Currency Code)
+                                overflow:
+                                    TextOverflow.ellipsis, // Prevent overflow
+                                style: TextStyle(
+                                    fontSize:
+                                        16), // Optional: Adjust font size/style
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       onTap: () {
                         widget.onCurrencySelected(filteredCurrencies[index]);
                       },
                     );
+
+                    //  ListTile(
+                    //   title: Text(filteredCurrencies[index]),
+                    //   onTap: () {
+                    //     widget.onCurrencySelected(filteredCurrencies[index]);
+                    //   },
+                    // );
                   },
                 ),
               ),
