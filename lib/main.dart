@@ -292,11 +292,16 @@ class _CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
                   return ListTile(
                     title: Row(
                       children: [
-                        Flag.fromString(
-                          countryData[index][1],
-                          height: 10,
-                          width: 10,
-                          fit: BoxFit.fill,
+                        Image.network(
+                          width: 20,
+                          "https://flagcdn.com/w320/${countryData[index][0].toLowerCase()}.png",
+                          errorBuilder: (BuildContext context, Object error,
+                              StackTrace? stackTrace) {
+                            return const Icon(
+                              Icons.error,
+                              size: 50,
+                            );
+                          },
                         ),
                         Text(filteredCurrencies[index]),
                       ],
