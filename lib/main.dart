@@ -1,3 +1,6 @@
+import 'package:currency_converter_app/countries.dart';
+import 'package:flag/flag_enum.dart';
+import 'package:flag/flag_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -287,7 +290,17 @@ class _CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
                 itemCount: filteredCurrencies.length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text(filteredCurrencies[index]),
+                    title: Row(
+                      children: [
+                        Flag.fromString(
+                          countryData[index][1],
+                          height: 10,
+                          width: 10,
+                          fit: BoxFit.fill,
+                        ),
+                        Text(filteredCurrencies[index]),
+                      ],
+                    ),
                     onTap: () {
                       widget.onCurrencySelected(filteredCurrencies[index]);
                     },
