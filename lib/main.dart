@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'api_service.dart';
@@ -225,6 +226,78 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                 ],
               ),
             ),
+    );
+  }
+}
+
+class CurrencySelectionSheet extends StatefulWidget {
+  final List<String> currencies;
+  final ValueChanged<String> onCurrencySelected;
+
+  const CurrencySelectionSheet({
+    Key? key,
+    required this.currencies,
+    required this.onCurrencySelected,
+  }) : super(key: key);
+
+  @override
+  _CurrencySelectionSheetState createState() => _CurrencySelectionSheetState();
+}
+
+class _CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
+  late List<String> filteredCurrencies;
+
+  @override
+  void initState() {
+    super.initState();
+    filteredCurrencies = widget.currencies;
+  }
+
+  void _filterCurrencies(String query) {
+    setState(() {
+      filteredCurrencies = widget.currencies
+          .where((currency) =>
+              currency.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      maxChildSize: 0.9,
+      minChildSize: 0.4,
+      builder: (context, scrollController) {
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                decoration: const InputDecoration(
+                  labelText: 'Search Currency',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: _filterCurrencies,
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                controller: scrollController,
+                itemCount: filteredCurrencies.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(filteredCurrencies[index]),
+                    onTap: () {
+                      widget.onCurrencySelected(filteredCurrencies[index]);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
