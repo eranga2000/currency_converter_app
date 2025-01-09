@@ -272,48 +272,51 @@ class _CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
       maxChildSize: 0.9,
       minChildSize: 0.4,
       builder: (context, scrollController) {
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Search Currency',
-                  border: OutlineInputBorder(),
+        return ColoredBox(
+          color: Colors.white,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Search Currency',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: _filterCurrencies,
                 ),
-                onChanged: _filterCurrencies,
               ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                controller: scrollController,
-                itemCount: filteredCurrencies.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Row(
-                      children: [
-                        Image.network(
-                          width: 20,
-                          "https://flagcdn.com/w320/${countryData[index][0].toLowerCase()}.png",
-                          errorBuilder: (BuildContext context, Object error,
-                              StackTrace? stackTrace) {
-                            return const Icon(
-                              Icons.error,
-                              size: 50,
-                            );
-                          },
-                        ),
-                        Text(filteredCurrencies[index]),
-                      ],
-                    ),
-                    onTap: () {
-                      widget.onCurrencySelected(filteredCurrencies[index]);
-                    },
-                  );
-                },
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: filteredCurrencies.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Row(
+                        children: [
+                          Image.network(
+                            width: 20,
+                            "https://flagcdn.com/w320/${countryData[index][0].toLowerCase()}.png",
+                            errorBuilder: (BuildContext context, Object error,
+                                StackTrace? stackTrace) {
+                              return const Icon(
+                                Icons.error,
+                                size: 50,
+                              );
+                            },
+                          ),
+                          Text(filteredCurrencies[index]),
+                        ],
+                      ),
+                      onTap: () {
+                        widget.onCurrencySelected(filteredCurrencies[index]);
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

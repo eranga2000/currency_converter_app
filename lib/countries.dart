@@ -3,7 +3,7 @@ List<List<String>> countryData = [
   ["AF", "Afghanistan"],
   ["AL", "Albania"],
   ["AM", "Armenia"],
-  ["AN", "Netherlands Antilles"],
+  ["sx", "Netherlands Antilles"], // ["AN", "Netherlands Antilles"],
   ["AO", "Angola"],
   ["AR", "Argentina"],
   ["AU", "Australia"],
@@ -41,7 +41,7 @@ List<List<String>> countryData = [
   ["EG", "Egypt"],
   ["ER", "Eritrea"],
   ["ET", "Ethiopia"],
-  ["EU", "Eurozone countries"],
+  ["EU", "Eurozone countries"], //not working
   ["FJ", "Fiji"],
   ["FK", "Falkland Islands"],
   ["FO", "Faroe Islands"],
@@ -126,6 +126,7 @@ List<List<String>> countryData = [
   ["SG", "Singapore"],
   ["SH", "Saint Helena"],
   ["SL", "Sierra Leone"],
+  ["SL", "Sierra Leone"],
   ["SO", "Somalia"],
   ["SR", "Suriname"],
   ["SS", "South Sudan"],
@@ -151,11 +152,20 @@ List<List<String>> countryData = [
   ["VN", "Vietnam"],
   ["VU", "Vanuatu"],
   ["WS", "Samoa"],
-  ["XAF", "Central African countries using CFA Franc"],
-  ["XCD", "East Caribbean countries"],
-  ["XDR", "International Monetary Fund (Special Drawing Rights)"],
-  ["XOF", "West African countries using CFA Franc"],
-  ["XPF", "French Polynesia (CFP Franc)"],
+  [
+    "cf",
+    "Central African countries using CFA Franc"
+  ], // ["XAF", "Central African countries using CFA Franc"],
+  ["XCD", "East Caribbean countries"], //not working
+  [
+    "XDR",
+    "International Monetary Fund (Special Drawing Rights)"
+  ], //not  working
+  [
+    "bj",
+    "West African countries using CFA Franc"
+  ], // ["XOF", "West African countries using CFA Franc"],
+  ["XPF", "French Polynesia (CFP Franc)"], //not working
   ["YE", "Yemen"],
   ["ZA", "South Africa"],
   ["ZM", "Zambia"],
