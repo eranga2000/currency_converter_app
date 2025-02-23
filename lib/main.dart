@@ -1,6 +1,5 @@
 import 'package:currency_converter_app/countries.dart';
-import 'package:flag/flag_enum.dart';
-import 'package:flag/flag_widget.dart';
+import 'package:currency_converter_app/country_data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -37,13 +36,14 @@ class CurrencyConverterScreen extends StatefulWidget {
   const CurrencyConverterScreen({super.key});
 
   @override
-  _CurrencyConverterScreenState createState() =>
-      _CurrencyConverterScreenState();
+  CurrencyConverterScreenState createState() => CurrencyConverterScreenState();
 }
 
-class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
+class CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
   final ApiService apiService = ApiService();
+  final Countries countries = Countries();
   Map<String, dynamic>? exchangeRates;
+  List<Map<String, dynamic>> countryInfo = [];
   String fromCurrency = 'AED';
   String toCurrency = 'AED';
   double amount = 0.0;
@@ -58,13 +58,16 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchExchangeRates();
+    _fetchCurrencyData();
   }
 
-  Future<void> _fetchExchangeRates() async {
+  Future<void> _fetchCurrencyData() async {
     try {
       final data = await apiService.fetchExchangeRates(fromCurrency);
+      final countryData = await countries.getCountryData();
+
       setState(() {
+        countryInfo = countryData;
         exchangeRates = data;
         currencyList = exchangeRates!.keys.toList();
         isLoading = false;
@@ -101,7 +104,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
             amount.toStringAsFixed(2); // Update the TextField
       }
 
-      _fetchExchangeRates(); // Fetch new exchange rates
+      _fetchCurrencyData(); // Fetch new exchange rates
       _convertCurrency(); // Perform the conversion again
     });
   }
@@ -118,7 +121,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
             setState(() {
               if (isFromCurrency) {
                 fromCurrency = selectedCurrency;
-                _fetchExchangeRates();
+                _fetchCurrencyData();
               } else {
                 toCurrency = selectedCurrency;
               }
@@ -238,29 +241,42 @@ class CurrencySelectionSheet extends StatefulWidget {
   final ValueChanged<String> onCurrencySelected;
 
   const CurrencySelectionSheet({
-    Key? key,
+    super.key,
     required this.currencies,
     required this.onCurrencySelected,
-  }) : super(key: key);
+  });
 
   @override
-  _CurrencySelectionSheetState createState() => _CurrencySelectionSheetState();
+  CurrencySelectionSheetState createState() => CurrencySelectionSheetState();
 }
 
-class _CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
-  late List<String> filteredCurrencies;
+class CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
+  late List<Map<String, dynamic>> filteredCurrencies;
 
   @override
   void initState() {
     super.initState();
-    filteredCurrencies = widget.currencies;
+    filteredCurrencies = widget.currencies
+        .asMap()
+        .entries
+        .map((entry) => {
+              "currency": entry.value,
+              "index": entry.key,
+            })
+        .toList();
   }
 
   void _filterCurrencies(String query) {
     setState(() {
       filteredCurrencies = widget.currencies
-          .where((currency) =>
-              currency.toLowerCase().contains(query.toLowerCase()))
+          .asMap()
+          .entries
+          .where((entry) =>
+              entry.value.toLowerCase().contains(query.toLowerCase()))
+          .map((entry) => {
+                "currency": entry.value,
+                "index": entry.key,
+              })
           .toList();
     });
   }
@@ -291,25 +307,32 @@ class _CurrencySelectionSheetState extends State<CurrencySelectionSheet> {
                   controller: scrollController,
                   itemCount: filteredCurrencies.length,
                   itemBuilder: (context, index) {
+                    // Get the original index from the filtered list
+                    int originalIndex = filteredCurrencies[index]["index"];
+
                     return ListTile(
                       title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
+                          // Display flag using the original index
                           Image.network(
                             width: 20,
-                            "https://flagcdn.com/w320/${countryData[index][0].toLowerCase()}.png",
+                            "https://flagcdn.com/w320/${countryData[originalIndex][0].toLowerCase()}.png",
                             errorBuilder: (BuildContext context, Object error,
                                 StackTrace? stackTrace) {
                               return const Icon(
                                 Icons.error,
-                                size: 50,
+                                size: 20,
                               );
                             },
                           ),
-                          Text(filteredCurrencies[index]),
+                          const SizedBox(width: 16),
+                          Text(filteredCurrencies[index]["currency"]),
                         ],
                       ),
                       onTap: () {
-                        widget.onCurrencySelected(filteredCurrencies[index]);
+                        widget.onCurrencySelected(
+                            filteredCurrencies[index]["currency"]);
                       },
                     );
                   },
